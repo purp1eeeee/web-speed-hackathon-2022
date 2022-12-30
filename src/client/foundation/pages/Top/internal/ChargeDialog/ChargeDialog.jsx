@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import React, { forwardRef, useCallback, useState } from "react";
-import zenginCode from "zengin-code";
+import React, { forwardRef, useCallback, useEffect, useState } from "react";
 
 import { Dialog } from "../../../../components/layouts/Dialog";
 import { Spacer } from "../../../../components/layouts/Spacer";
@@ -19,6 +18,18 @@ const CHARGE = "charge";
 
 /** @type {React.ForwardRefExoticComponent<{Props>} */
 export const ChargeDialog = forwardRef(({ onComplete }, ref) => {
+  const [zenginCode, setZenginCode] = useState({});
+  useEffect(() => {
+    (async () => {
+      const code = await (
+        await fetch("https://zengin-code.github.io/api/banks.json")
+      ).json();
+      setZenginCode(code);
+    })();
+  }, []);
+
+  const [branches, setBranches] = useState({});
+
   const [bankCode, setBankCode] = useState("");
   const [branchCode, setBranchCode] = useState("");
   const [accountNo, setAccountNo] = useState("");
@@ -36,9 +47,15 @@ export const ChargeDialog = forwardRef(({ onComplete }, ref) => {
     method: "POST",
   });
 
-  const handleCodeChange = useCallback((e) => {
+  const handleCodeChange = useCallback(async (e) => {
     setBankCode(e.currentTarget.value);
     setBranchCode("");
+    const branches = await (
+      await fetch(
+        `https://zengin-code.github.io/api/branches/${e.currentTarget.value}.json`,
+      )
+    ).json();
+    setBranches(branches);
   }, []);
 
   const handleBranchChange = useCallback((e) => {
@@ -72,8 +89,7 @@ export const ChargeDialog = forwardRef(({ onComplete }, ref) => {
     name,
   }));
   const bank = zenginCode[bankCode];
-  const branch = bank?.branches[branchCode];
-
+  const branch = branches[branchCode];
   return (
     <Dialog ref={ref} onClose={handleCloseDialog}>
       <section>
@@ -113,8 +129,8 @@ export const ChargeDialog = forwardRef(({ onComplete }, ref) => {
             </label>
 
             <datalist id="ChargeDialog-branch-list">
-              {bank != null &&
-                Object.values(bank.branches).map((branch) => (
+              {branches != null &&
+                Object.values(branches).map((branch) => (
                   <option key={branch.code} value={branch.code}>
                     {branch.name}
                   </option>
