@@ -32,10 +32,12 @@ module.exports = [
         },
         {
           exclude: /[\\/]esm[\\/]/,
+          // test: [/\.js$/, /\.jsx$/],
           test: /\.jsx?$/,
           use: {
             loader: "babel-loader",
             options: {
+              plugins: ["@babel/plugin-transform-runtime"],
               presets: [
                 [
                   "@babel/preset-env",
