@@ -1,11 +1,21 @@
-import moment from "moment-timezone";
+export const isBefore = (dateLeft, dateRight) => {
+  return new Date(dateLeft).getTime() < new Date(dateRight).getTime();
+};
+
+const isAfter = (dateLeft, dateRight) => {
+  return new Date(dateLeft).getTime() > new Date(dateRight).getTime();
+};
 /**
  * @param {string} dateLeft
  * @param {string} dateRight
  * @returns {boolean}
  */
 export const isSameDay = (dateLeft, dateRight) => {
-  return moment(dateLeft).isSame(moment(dateRight), "day");
+  const left = new Date(dateLeft);
+  left.setHours(0, 0, 0, 0);
+  const right = new Date(dateRight);
+  right.setHours(0, 0, 0, 0);
+  return left.getTime() === right.getTime();
 };
 
 /**
@@ -14,7 +24,10 @@ export const isSameDay = (dateLeft, dateRight) => {
  * @returns {string}
  */
 export const formatTime = (ts) => {
-  return moment(ts).format("H:mm");
+  return new Intl.DateTimeFormat("ja-jp", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(ts));
 };
 
 /**
@@ -23,13 +36,14 @@ export const formatTime = (ts) => {
  * @returns {string}
  */
 export const formatCloseAt = (closeAt, now = new Date()) => {
-  if (moment(closeAt).isBefore(now)) {
+  if (isBefore(new Date(closeAt), now)) {
     return "投票締切";
   }
 
-  if (moment(closeAt).isAfter(moment(now).add(2, "hours"))) {
+  if (isAfter(new Date(closeAt), new Date(now.setHours(now.getHours() + 2)))) {
     return "投票受付中";
   }
 
-  return `締切${moment(closeAt).diff(now, "minutes")}分前`;
+  const diff = (now.getTime() - new Date(closeAt).getTime()) / 3600000;
+  return `締切${Math.trunc(diff)}分前`;
 };
