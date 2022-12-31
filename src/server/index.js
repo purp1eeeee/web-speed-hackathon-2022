@@ -1,4 +1,5 @@
 import "regenerator-runtime/runtime";
+import fastifyCompress from "@fastify/compress";
 import fastify from "fastify";
 import fastifySensible from "fastify-sensible";
 
@@ -22,6 +23,7 @@ const server = fastify({
       },
 });
 server.register(fastifySensible);
+server.register(fastifyCompress);
 
 server.addHook("onRequest", async (req, res) => {
   const repo = (await createConnection()).getRepository(User);
