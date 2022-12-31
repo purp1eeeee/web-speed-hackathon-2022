@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { StyleSheetManager } from "styled-components";
 
@@ -13,7 +13,9 @@ export const App = () => {
       <AuthContextProvider>
         <GlobalStyle />
         <BrowserRouter>
-          <Routes />
+          <Suspense fallback={<p>loading...</p>}>
+            <Routes />
+          </Suspense>
         </BrowserRouter>
       </AuthContextProvider>
     </StyleSheetManager>
